@@ -15,10 +15,16 @@ int main()
   {
       std::cout<<i<<std::endl;
   }
+  std::cout<<"反向链表内容:"<<std::endl;
+  for(auto i:Dlist.reverse_adapter())
+  {
+    std::cout<<i<<std::endl;
+  }
   auto* value=Dlist.Pop();
   std::cout<<"delete Node :"<<*value<<std::endl;
   delete value;
   Dlist.Print();
+  Dlist.ReversePrint();
 	return 0;
 
 	return 0;

@@ -51,6 +51,37 @@ const Iterator<T>& Iterator<T>::operator++()
   }
   return *this;
 }
+template <typename T>
+class ReverseIterator
+{
+  public:
+    ReverseIterator(DLLNode<T>* ptr):_current(ptr){}
+    bool operator!=(const ReverseIterator& other )const;
+    T operator*()const;
+    const ReverseIterator& operator++();
+  private:
+    DLLNode<T> *_current;
+};
+
+template <typename T>
+bool ReverseIterator<T>::operator!=(const ReverseIterator& other)const
+{
+  return this->_current!=other._current;
+}
+template <typename T>
+T ReverseIterator<T>::operator*()const
+{
+  return this->_current->GetData();
+}
+template <typename T>
+const ReverseIterator<T>& ReverseIterator<T>::operator++()
+{
+  if(_current)
+  {
+    this->_current=this->_current->GetPrev();
+  }
+  return *this;
+}
 
 template <typename T>
 class DLList
@@ -75,9 +106,25 @@ class DLList
     bool Inlist(const T target);  //判断数据所在节点是否在链表中
     DLLNode<T>* Find(T target)const;
     void Print()const;  //遍历打印 
+    void ReversePrint()const;
 
     Iterator<T> begin()const;
     Iterator<T> end()const;
+    ReverseIterator<T> rbegin()const;
+    ReverseIterator<T> rend()const;
+    class ReverseAdapter 
+    {
+    public:
+      DLList<T>& list;
+      ReverseAdapter(DLList<T>& lst) : list(lst) {}
+      ReverseIterator<T> begin() { return list.rbegin();}
+      ReverseIterator<T> end() { return list.rend();}
+    };
+    // 方法以便调用适配器
+    ReverseAdapter reverse_adapter() 
+    {
+      return ReverseAdapter(*this);
+    }
   private:
     int _Length;
     DLLNode<T> *_header,*_tail;
@@ -416,10 +463,18 @@ DLLNode<T>* DLList<T>::Find(T target)const
 template <typename T>
 void DLList<T>::Print()const
 {
-  DLLNode<T>* current = this->_header; // 从头节点开始
-  while (current != nullptr) {    // 遍历链表
-      std::cout << current->GetData() << " "; // 打印当前节点的数据
-      current = current->GetNext(); // 移动到下一个节点
+  for(auto i:*this)
+  {
+    std::cout << i << " "; // 打印当前节点的数据
+  }
+  std::cout << std::endl; // 打印换行
+}
+template <typename T>
+void DLList<T>::ReversePrint()const
+{ 
+  for (auto i = rbegin(); i != rend(); ++i) 
+  {
+    std::cout << *i << " "; // 打印当前节点的数据
   }
   std::cout << std::endl; // 打印换行
 }
@@ -434,5 +489,15 @@ Iterator<T> DLList<T>::end()const
 {
    return Iterator<T>(nullptr);
 }
-
+//反向遍历支持
+template <typename T>
+ReverseIterator<T> DLList<T>::rbegin()const
+{
+  return ReverseIterator<T>(this->_tail);
+}
+template <typename T>
+ReverseIterator<T> DLList<T>::rend()const
+{
+   return ReverseIterator<T>(nullptr);
+}
 #endif //__DLLIST_HPP_ end
